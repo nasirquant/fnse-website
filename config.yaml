@@ -1,0 +1,41 @@
+baseURL: 'https://fnse.dev'
+title: 'FNSE - Fractal Neural Simulation Engine'
+theme: 'hextra'
+
+defaultContentLanguage: en
+enableGitInfo: true
+
+module:
+  hugoVersion:
+    extended: true
+    min: '0.112.0'
+
+params:
+  navbar:
+    displayTitle: true
+    displayLogo: false
+    title: '🧠 FNSE'
+    links:
+      - name: Docs
+        url: /docs/
+      - name: GitHub
+        url: https://github.com/nasirquant/fractal-neural-engine
+        external: true
+  footer:
+    displayCopyright: true
+    copyright: '© 2026 FNSE Engine. Open-source under AGPL-3.0.'
+  search:
+    enable: true
+    type: flexsearch
+
+menu:
+  main:
+    - name: Quickstart
+      url: /docs/quickstart/
+      weight: 1
+    - name: Architecture
+      url: /docs/architecture/
+      weight: 2
+    - name: API Reference
+      url: /docs/api-reference/
+      weight: 3
