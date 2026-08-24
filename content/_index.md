@@ -4,7 +4,6 @@ description: "A production-grade, self-evolving multi-agent simulation framework
 layout: "landing"
 ---
 
-![Fractal Neural Simulation Engine](/apple-touch-icon.png)
 {{< hextra/hero-headline >}}
 {{< /hextra/hero-headline >}}
 
