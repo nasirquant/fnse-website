@@ -1,0 +1,60 @@
+baseURL = 'https://fnse.dev'
+languageCode = 'en-us'
+title = 'FNSE - Fractal Neural Simulation Engine'
+theme = 'hextra'
+
+[params]
+  description = 'A production-grade, self-evolving multi-agent simulation framework with recursive skill compilation, graph-based memory, and enterprise safeguards.'
+  logo = '/images/logo.svg'
+  favicon = '/favicon.ico'
+
+  [params.header]
+    displayTitle = true
+    displayLogo = true
+
+  [params.footer]
+    displayCopyright = true
+    displayPoweredBy = true
+    copyright = 'FNSE is licensed under AGPL-3.0'
+
+  [params.navbar]
+    displayTitle = true
+    displayLogo = true
+
+  [params.search]
+    enable = true
+    type = 'flexsearch'
+
+  [params.comments]
+    enable = false
+
+  [params.editURL]
+    enable = true
+    repo = 'https://github.com/nasirquant/fnse-website'
+    branch = 'main'
+    dir = 'content'
+
+[build]
+  [build.buildStats]
+    enable = true
+    disableIDs = true
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+  [markup.highlight]
+    noClasses = false
+    guessSyntax = true
+  [markup.tableOfContents]
+    startLevel = 2
+    endLevel = 4
+
+[outputs]
+  home = ['HTML', 'RSS', 'JSON']
+  page = ['HTML']
+  section = ['HTML', 'RSS']
+
+[taxonomies]
+  tag = 'tags'
+  category = 'categories'
