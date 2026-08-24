@@ -58,3 +58,23 @@ theme = 'hextra'
 [taxonomies]
   tag = 'tags'
   category = 'categories'
+
+[menu]
+  [[menu.main]]
+    name = "Quickstart"
+    pageRef = "/docs/quickstart"
+    weight = 1
+  [[menu.main]]
+    name = "Architecture"
+    pageRef = "/docs/architecture"
+    weight = 2
+  [[menu.main]]
+    name = "API Reference"
+    pageRef = "/docs/api-reference"
+    weight = 3
+  [[menu.main]]
+    name = "GitHub"
+    url = "https://github.com/nasirquant/fnse-website"
+    weight = 4
+    [menu.main.params]
+      icon = "github"
