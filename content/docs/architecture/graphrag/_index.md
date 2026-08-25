@@ -187,13 +187,9 @@ graphrag:
 
 | Method | Endpoint                            | Description            |
 | ------ | ----------------------------------- | ---------------------- |
-| `POST` | `/graphrag/search`                  | Hybrid search          |
-| `POST` | `/graphrag/vector-search`           | Vector-only search     |
-| `POST` | `/graphrag/graph-traverse`          | Graph traversal        |
-| `POST` | `/graphrag/multi-hop`               | Multi-hop reasoning    |
-| `POST` | `/graphrag/ingest`                  | Ingest documents       |
-| `GET`  | `/graphrag/entities/{id}`           | Get entity details     |
-| `GET`  | `/graphrag/entities/{id}/neighbors` | Get connected entities |
+| `POST` | `/epochs/{epoch_id}/graph/seed`     | Seed initial graph entities |
+| `POST` | `/epochs/{epoch_id}/graph/query`    | Query graph with vector similarity |
+| `GET`  | `/epochs/{epoch_id}/graph/stats`    | Get graph statistics   |
 
 ## Next Steps
 

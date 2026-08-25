@@ -223,13 +223,9 @@ skill_compiler:
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | /skills/compile | Compile new skill from failure |
-| POST | /skills/register | Register validated skill |
-| GET | /skills/{id} | Get skill details |
-| GET | /skills | List skills (with filters) |
-| POST | /skills/{id}/test | Run skill tests |
-| POST | /skills/{id}/rollback | Rollback to previous version |
-| DELETE | /skills/{id} | Deprecate skill |
+| POST | /epochs/{epoch_id}/skills | Compile new skill from source code |
+| GET | /epochs/{epoch_id}/skills | List skills for an epoch |
+| GET | /epochs/{epoch_id}/skills/{skill_id} | Get skill details |
 
 ## Next Steps
 

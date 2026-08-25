@@ -62,7 +62,10 @@ curl -X POST http://localhost:8000/epochs \
     "num_agents": 10,
     "max_ticks": 100,
     "global_objective": "minimize_loss",
-    "convergence_threshold": 0.01
+    "loss_function": "mse",
+    "convergence_threshold": 0.01,
+    "checkpoint_interval": 10,
+    "agent_roles": ["explorer", "optimizer", "critic", "synthesizer", "coordinator"]
   }'
 ```
 
@@ -71,22 +74,19 @@ Response:
 {
   "epoch_id": "ep_abc123",
   "status": "running",
-  "num_agents": 10,
-  "max_ticks": 100,
-  "global_objective": "minimize_loss",
-  "created_at": "2024-01-15T10:30:00Z"
+  "config": {
+    "num_agents": 10,
+    "max_ticks": 100,
+    "global_objective": "minimize_loss",
+    "loss_function": "mse",
+    "convergence_threshold": 0.01,
+    "checkpoint_interval": 10,
+    "agent_roles": ["explorer", "optimizer", "critic", "synthesizer", "coordinator"]
+  }
 }
 ```
 
 ## Monitor Progress
-
-### WebSocket Streaming (Real-time)
-
-```bash
-# Install websocat for testing
-# Then connect to the epoch stream
-websocat ws://localhost:8000/epochs/ep_abc123/stream
-```
 
 ### REST Polling
 
@@ -97,8 +97,8 @@ curl http://localhost:8000/epochs/ep_abc123
 # Get agent states
 curl http://localhost:8000/epochs/ep_abc123/agents
 
-# Get loss history
-curl http://localhost:8000/epochs/ep_abc123/loss-history
+# Get epoch result
+curl http://localhost:8000/epochs/ep_abc123/result
 ```
 
 ## Environment Variables
@@ -107,10 +107,15 @@ curl http://localhost:8000/epochs/ep_abc123/loss-history
 |----------|----------|---------|-------------|
 | `OPENAI_API_KEY` | Yes* | - | OpenAI API key for GPT models |
 | `ANTHROPIC_API_KEY` | Yes* | - | Anthropic API key for Claude models |
-| `REDIS_URL` | No | `redis://localhost:6379` | Redis connection string |
+| `GOOGLE_API_KEY` | No | - | Google API key |
+| `COHERE_API_KEY` | No | - | Cohere API key |
+| `TOGETHER_API_KEY` | No | - | Together AI API key |
+| `REDIS_URL` | No | `redis://localhost:6379/0` | Redis connection string |
 | `FNSE_LOG_LEVEL` | No | `INFO` | Logging level (DEBUG, INFO, WARNING, ERROR) |
-| `FNSE_MAX_CONCURRENT_EPOCHS` | No | `5` | Maximum parallel epochs |
-| `FNSE_DEFAULT_MODEL` | No | `gpt-4-turbo` | Default LLM model for agents |
+| `FNSE_LOG_FORMAT` | No | `json` | Log format (json or text) |
+| `FNSE_DEFAULT_MODEL` | No | `gpt-4o-mini` | Default LLM model for agents |
+| `FNSE_MODEL_TEMPERATURE` | No | `0.7` | Sampling temperature |
+| `FNSE_MAX_TOKENS` | No | `2048` | Max tokens per completion |
 
 *At least one LLM API key is required.
 

@@ -1,18 +1,18 @@
 ---
 title: "API Reference"
-description: "Complete REST API and WebSocket documentation for FNSE"
+description: "Complete REST API documentation for FNSE"
 weight: 3
 ---
 
 ## Base URL
 
 ```
-http://localhost:8000/api/v1
+http://localhost:8000
 ```
 
 ## Authentication
 
-Currently, the API uses API key authentication via header:
+Currently, the API does not require authentication. For production deployments, implement API key authentication via header:
 
 ```
 Authorization: Bearer <your-api-key>
@@ -20,9 +20,8 @@ Authorization: Bearer <your-api-key>
 
 ## Rate Limiting
 
-- 100 requests per minute per IP
-- 1000 requests per minute per API key
-- WebSocket connections: 50 concurrent per IP
+Rate limiting is not currently implemented. For production, consider adding:
+- Request rate limits per IP
 
 ## Epochs
 
@@ -32,21 +31,31 @@ Start a new simulation epoch.
 
 **POST** `/epochs`
 
+**Request Body:**
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `num_agents` | integer | No | 10 | Number of agents (1-100) |
+| `max_ticks` | integer | No | 100 | Maximum simulation ticks (1-1000) |
+| `global_objective` | string | No | "minimize_loss" | Global optimization objective |
+| `loss_function` | string | No | "mse" | Loss function: "mse", "mae", "cosine", or "custom" |
+| `convergence_threshold` | float | No | 0.01 | Convergence threshold (0.0-1.0) |
+| `checkpoint_interval` | integer | No | 10 | Checkpoint every N ticks (1-100) |
+| `agent_roles` | array[string] | No | - | Specific roles to assign (e.g., ["explorer", "optimizer"]) |
+| `seed_entities` | array[object] | No | - | Initial GraphRAG entities to seed |
+| `model` | string | No | - | Override default LLM model |
+| `model_temperature` | float | No | - | Override default temperature |
+
+**Example Request:**
 ```json
 {
   "num_agents": 10,
   "max_ticks": 100,
   "global_objective": "minimize_loss",
+  "loss_function": "mse",
   "convergence_threshold": 0.01,
-  "roles": ["explorer", "optimizer", "critic", "synthesizer", "coordinator"],
-  "role_distribution": {
-    "explorer": 0.30,
-    "optimizer": 0.25,
-    "critic": 0.20,
-    "synthesizer": 0.15,
-    "coordinator": 0.10
-  },
-  "config_overrides": {}
+  "checkpoint_interval": 10,
+  "agent_roles": ["explorer", "optimizer", "critic", "synthesizer", "coordinator"]
 }
 ```
 
@@ -56,12 +65,15 @@ Start a new simulation epoch.
 {
   "epoch_id": "ep_abc123",
   "status": "running",
-  "num_agents": 10,
-  "max_ticks": 100,
-  "global_objective": "minimize_loss",
-  "convergence_threshold": 0.01,
-  "created_at": "2024-01-15T10:30:00Z",
-  "started_at": "2024-01-15T10:30:01Z"
+  "config": {
+    "num_agents": 10,
+    "max_ticks": 100,
+    "global_objective": "minimize_loss",
+    "loss_function": "mse",
+    "convergence_threshold": 0.01,
+    "checkpoint_interval": 10,
+    "agent_roles": ["explorer", "optimizer", "critic", "synthesizer", "coordinator"]
+  }
 }
 ```
 
@@ -74,91 +86,75 @@ Start a new simulation epoch.
 ```json
 {
   "epoch_id": "ep_abc123",
-  "status": "running",
-  "current_tick": 42,
-  "max_ticks": 100,
-  "num_agents": 10,
-  "global_objective": "minimize_loss",
-  "convergence_threshold": 0.01,
-  "current_loss": 0.847,
-  "best_loss": 0.823,
-  "loss_history": [1.234, 1.156, 0.987, 0.847],
-  "agent_counts": {
-    "explorer": 3,
-    "optimizer": 2,
-    "critic": 2,
-    "synthesizer": 2,
-    "coordinator": 1
-  },
-  "created_at": "2024-01-15T10:30:00Z",
-  "started_at": "2024-01-15T10:30:01Z",
-  "updated_at": "2024-01-15T10:35:22Z"
-}
-```
-
-### List Epochs
-
-**GET** `/epochs`
-
-**Query Parameters:**
-- `status` - Filter by status (running, completed, failed, paused)
-- `limit` - Max results (default 50, max 200)
-- `offset` - Pagination offset
-
-**Response** (200 OK):
-
-```json
-{
-  "epochs": [
-    {
-      "epoch_id": "ep_abc123",
-      "status": "completed",
-      "num_agents": 10,
-      "max_ticks": 100,
-      "final_loss": 0.823,
-      "created_at": "2024-01-15T10:30:00Z",
-      "completed_at": "2024-01-15T11:15:00Z"
+  "running": true,
+  "tick_number": 42,
+  "global_loss": 0.847,
+  "convergence_rate": -0.0023,
+  "converged": false,
+  "agent_states": {
+    "exp_001": {
+      "agent_id": "exp_001",
+      "role": "explorer",
+      "status": "active",
+      "tick_count": 42,
+      "success_count": 15,
+      "failure_count": 2,
+      "total_tokens_used": 12500,
+      "avg_latency_ms": 245.3,
+      "divergence_score": 0.15,
+      "current_objective": "minimize_loss",
+      "active_skill_id": "skill_gradient_descent_v3"
     }
-  ],
-  "total": 42,
-  "limit": 50,
-  "offset": 0
+  },
+  "circuit_breakers": {
+    "agent_execution": "closed",
+    "loss_computation": "closed"
+  },
+  "alerts_summary": {
+    "info": 2,
+    "warning": 0,
+    "critical": 0,
+    "emergency": 0
+  },
+  "checkpoints": 4,
+  "uptime_seconds": 312.5
 }
 ```
 
-### Pause Epoch
 
-**POST** `/epochs/{epoch_id}/pause`
-
-**Response** (200 OK):
-
-```json
-{
-  "epoch_id": "ep_abc123",
-  "status": "paused",
-  "paused_at": "2024-01-15T10:45:00Z",
-  "current_tick": 42
-}
-```
-
-### Resume Epoch
-
-**POST** `/epochs/{epoch_id}/resume`
-
-**Response** (200 OK):
-
-```json
-{
-  "epoch_id": "ep_abc123",
-  "status": "running",
-  "resumed_at": "2024-01-15T10:46:00Z",
-  "current_tick": 42
-}
-```
 
 ### Delete Epoch
 
 **DELETE** `/epochs/{epoch_id}`
+
+**Response** (200 OK):
+```json
+{
+  "status": "deleted",
+  "epoch_id": "ep_abc123"
+}
+```
+
+### List All Epochs
+
+**GET** `/epochs`
+
+**Response** (200 OK):
+```json
+["ep_abc123", "ep_def456", "ep_ghi789"]
+```
+
+### Health Check
+
+**GET** `/health`
+
+**Response** (200 OK):
+```json
+{
+  "status": "healthy",
+  "service": "fnse"
+}
+```
 
 ## Agents
 
@@ -166,29 +162,23 @@ Start a new simulation epoch.
 
 **GET** `/epochs/{epoch_id}/agents`
 
-**Query Parameters:**
-- `role` - Filter by role
-- `status` - Filter by status (active, idle, quarantined)
-
 **Response** (200 OK):
 
 ```json
-{
-  "agents": [
-    {
-      "agent_id": "exp_001",
-      "role": "explorer",
-      "status": "active",
-      "current_tick": 42,
-      "last_loss": 0.847,
-      "skills_used": ["skill_gradient_descent_v3", "skill_random_search_v1"],
-      "messages_sent": 15,
-      "messages_received": 23,
-      "created_at": "2024-01-15T10:30:01Z"
-    }
-  ],
-  "total": 10
-}
+[
+  {
+    "agent_id": "exp_001",
+    "role": "explorer",
+    "status": "active",
+    "tick_count": 42,
+    "success_count": 15,
+    "failure_count": 2,
+    "total_tokens_used": 12500,
+    "divergence_score": 0.15,
+    "current_objective": "minimize_loss",
+    "active_skill_id": "skill_gradient_descent_v3"
+  }
+]
 ```
 
 ### Get Agent Details
@@ -202,123 +192,31 @@ Start a new simulation epoch.
   "agent_id": "exp_001",
   "role": "explorer",
   "status": "active",
-  "state": {
-    "current_params": {"lr": 0.01, "momentum": 0.9},
-    "best_params": {"lr": 0.005, "momentum": 0.95},
-    "best_loss": 0.823,
-    "iteration": 42
+  "working_memory": {
+    "dimensions": 384,
+    "values": [0.1, 0.2, ...],
+    "metadata": {},
+    "timestamp": "2024-01-15T10:35:22Z"
   },
-  "skill_history": [
-    {"skill_id": "skill_gradient_descent_v3", "tick": 40, "success": true, "loss_delta": -0.012},
-    {"skill_id": "skill_random_search_v1", "tick": 41, "success": true, "loss_delta": -0.008}
-  ],
-  "message_history": [
-    {"message_id": "msg_123", "type": "proposal", "tick": 41, "recipient": "broadcast"}
-  ],
-  "graphrag_queries": 15,
-  "skill_executions": 8,
-  "errors": 0
+  "long_term_memory_ref": "fnse:epoch:ep_abc123:agent:exp_001:memory",
+  "knowledge_graph_ref": "exp_001",
+  "current_objective": "minimize_loss",
+  "active_skill_id": "skill_gradient_descent_v3",
+  "skill_stack": ["skill_gradient_descent_v3"],
+  "tick_count": 42,
+  "success_count": 15,
+  "failure_count": 2,
+  "total_tokens_used": 12500,
+  "avg_latency_ms": 245.3,
+  "divergence_score": 0.15,
+  "last_checkpoint_tick": 40,
+  "tags": {},
+  "created_at": "2024-01-15T10:30:01Z",
+  "updated_at": "2024-01-15T10:35:22Z"
 }
 ```
 
-### Scale Agents
 
-**POST** `/epochs/{epoch_id}/agents/scale`
-
-```json
-{
-  "role": "explorer",
-  "delta": 5,
-  "reason": "Exploration plateau detected"
-}
-```
-
-**Response** (200 OK):
-
-```json
-{
-  "epoch_id": "ep_abc123",
-  "role": "explorer",
-  "previous_count": 3,
-  "new_count": 8,
-  "scaled_at": "2024-01-15T10:40:00Z"
-}
-```
-
-## Messages
-
-### Get Message History
-
-**GET** `/epochs/{epoch_id}/messages`
-
-**Query Parameters:**
-- `tick` - Filter by tick number
-- `type` - Filter by message type
-- `sender_id` - Filter by sender
-- `limit` - Max results (default 100)
-- `offset` - Pagination offset
-
-**Response** (200 OK):
-
-```json
-{
-  "messages": [
-    {
-      "message_id": "msg_abc123",
-      "sender_id": "exp_001",
-      "recipient": "broadcast",
-      "type": "proposal",
-      "payload": {
-        "solution": "adaptive_learning_rate",
-        "params": {"lr": 0.01, "decay": 0.99}
-      },
-      "tick": 42,
-      "timestamp": "2024-01-15T10:35:22Z"
-    }
-  ],
-  "total": 1247
-}
-```
-
-### WebSocket Stream
-
-**WS** `/epochs/{epoch_id}/stream`
-
-Real-time stream of epoch events. Connect with WebSocket client.
-
-**Event Types:**
-
-```json
-// Agent state update
-{
-  "type": "agent_update",
-  "tick": 42,
-  "agent_id": "exp_001",
-  "data": {"loss": 0.847, "status": "active"}
-}
-
-// New message
-{
-  "type": "message",
-  "message": {...}
-}
-
-// Safeguard alert
-{
-  "type": "safeguard_alert",
-  "severity": "warning",
-  "message": "Loss divergence detected"
-}
-
-// Epoch completed
-{
-  "type": "epoch_complete",
-  "epoch_id": "ep_abc123",
-  "final_loss": 0.823,
-  "ticks": 87
-}
-```
-**Response** (204 No Content)
 ## Safeguards
 
 ### Get Safeguard Status
@@ -330,414 +228,242 @@ Real-time stream of epoch events. Connect with WebSocket client.
 ```json
 {
   "epoch_id": "ep_abc123",
-  "status": "healthy",
+  "tick_count": 42,
   "circuit_breakers": {
-    "loss_divergence": {"triggered": false, "value": 0.847, "threshold": 2.0},
-    "agent_stall": {"triggered": false, "idle_agents": 0},
-    "memory_leak": {"triggered": false, "max_memory_mb": 452},
-    "api_error_rate": {"triggered": false, "rate": 0.02},
-    "skill_failure_rate": {"triggered": false, "rate": 0.05}
+    "agent_execution": "closed",
+    "loss_computation": "closed",
+    "skill_compilation": "closed",
+    "graphrag_query": "closed",
+    "redis_operations": "closed",
+    "llm_api": "closed"
   },
   "divergence": {
-    "score": 0.23,
-    "level": "info",
-    "metrics": {
-      "loss": 0.847,
-      "loss_velocity": -0.002,
-      "agent_diversity": 0.73,
-      "consensus_strength": 0.81,
-      "skill_success_rate": 0.94
+    "swarm_score": 0.23,
+    "max_threshold": 10.0,
+    "agent_scores": {
+      "exp_001": 0.15,
+      "opt_002": 0.23
     }
   },
-  "rollback": {
-    "available": true,
-    "latest_checkpoint_tick": 40,
-    "max_rollback_ticks": 100
-  }
+  "checkpoints": {
+    "total": 4,
+    "epoch_checkpoints": 4
+  },
+  "alerts": {
+    "total": 2,
+    "unacknowledged": 1,
+    "by_severity": {
+      "info": 2,
+      "warning": 0,
+      "critical": 0,
+      "emergency": 0
+    }
+  },
+  "circuit_break_count": 0,
+  "rollback_count": 0
 }
 ```
 
-### Get Divergence Metrics
 
-**GET** `/epochs/{epoch_id}/safeguards/metrics`
+
+### Get Alerts
+
+**GET** `/epochs/{epoch_id}/alerts`
 
 **Query Parameters:**
-- `start_tick` - Start tick (default: 0)
-- `end_tick` - End tick (default: current)
-- `interval` - Aggregation interval (default: 1)
+- `severity` - Filter by severity (info, warning, critical, emergency)
+- `limit` - Maximum number of alerts to return (default: 100)
 
 **Response** (200 OK):
 
 ```json
-{
-  "metrics": [
-    {
-      "tick": 40,
-      "loss": 0.856,
-      "loss_delta": -0.011,
-      "loss_velocity": -0.003,
-      "agent_diversity": 0.72,
-      "consensus_strength": 0.80,
-      "skill_success_rate": 0.93,
-      "message_throughput": 125,
-      "memory_usage_mb": 448,
-      "divergence_score": 0.25
-    }
-  ]
-}
+[
+  {
+    "alert_id": "alt_xyz789",
+    "timestamp": "2024-01-15T10:40:00Z",
+    "severity": "warning",
+    "source": "safeguard_system",
+    "message": "Divergence score 0.52 exceeds warning threshold",
+    "details": {"divergence_score": 0.52},
+    "acknowledged": false,
+    "resolved": false
+  }
+]
 ```
 
-### Get Alert History
+### Acknowledge Alert
 
-**GET** `/epochs/{epoch_id}/safeguards/alerts`
+**POST** `/epochs/{epoch_id}/alerts/{alert_id}/acknowledge`
 
 **Response** (200 OK):
-
 ```json
 {
-  "alerts": [
-    {
-      "alert_id": "alt_xyz789",
-      "epoch_id": "ep_abc123",
-      "severity": "warning",
-      "type": "divergence",
-      "message": "Divergence score 0.52 exceeds warning threshold",
-      "metrics": {"divergence_score": 0.52},
-      "timestamp": "2024-01-15T10:40:00Z",
-      "acknowledged": false
-    }
-  ]
+  "status": "acknowledged",
+  "alert_id": "alt_xyz789"
 }
 ```
 
-### Trigger Manual Rollback
-
-**POST** `/epochs/{epoch_id}/safeguards/rollback`
-
-```json
-{
-  "target_tick": 30,
-  "reason": "Manual intervention required"
-}
-```
-
-**Response** (200 OK):
-
-```json
-{
-  "rollback_id": "rbk_abc123",
-  "epoch_id": "ep_abc123",
-  "target_tick": 30,
-  "status": "completed",
-  "started_at": "2024-01-15T10:45:00Z",
-  "completed_at": "2024-01-15T10:45:05Z"
-}
-## Skill Compiler
+## Skills
 
 ### Compile Skill
 
-**POST** `/skills/compile`
+Compile a new skill from source code.
 
+**POST** `/epochs/{epoch_id}/skills`
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | string | Yes | Skill name |
+| `description` | string | Yes | Skill description |
+| `source_code` | string | Yes | Python source code |
+| `author_agent_id` | string | Yes | Agent ID that authored this skill |
+| `test_cases` | array[object] | No | Optional test cases |
+
+**Example Request:**
 ```json
 {
-  "failure_context": {
-    "failure_id": "fail_xyz789",
-    "agent_id": "opt_042",
-    "error_type": "performance",
-    "root_causes": [
-      {"hypothesis": "Inefficient loop", "confidence": 0.85}
-    ]
-  },
-  "target_skill": "gradient_descent",
-  "requirements": ["vectorized", "adaptive_lr"]
+  "name": "gradient_descent_v3",
+  "description": "Vectorized gradient descent with adaptive LR",
+  "source_code": "def execute(input_data, context):\n    # ... implementation\n    return {'result': output}",
+  "author_agent_id": "opt_042",
+  "test_cases": [
+    {"input": {"lr": 0.01}, "expected": {"loss_delta": -0.01}}
+  ]
 }
 ```
 
 **Response** (200 OK):
-
-```json
-{
-  "compilation_id": "cmp_abc123",
-  "status": "validated",
-  "skill_id": "skill_gradient_descent_v3",
-  "code": "class GradientDescentV3(Skill): ...",
-  "manifest": {...},
-  "test_results": {"passed": 15, "failed": 0, "coverage": 0.94},
-  "created_at": "2024-01-15T10:30:00Z"
-}
-```
-
-### Register Skill
-
-**POST** `/skills/register`
-
-```json
-{
-  "compilation_id": "cmp_abc123",
-  "skill_code": "class GradientDescentV3(Skill): ...",
-  "manifest": {...},
-  "test_results": {...}
-}
-```
-
-**Response** (201 Created):
-
 ```json
 {
   "skill_id": "skill_gradient_descent_v3",
-  "version": "3.0.0",
-  "status": "registered",
-  "registered_at": "2024-01-15T10:30:00Z"
+  "test_results": {"passed": 1, "failed": 0, "coverage": 1.0}
 }
 ```
 
 ### List Skills
 
-**GET** `/skills`
-
-**Query Parameters:**
-- `role` - Filter by compatible role
-- `tag` - Filter by tag
-- `status` - Filter by status (draft, testing, validated, registered, deprecated)
+**GET** `/epochs/{epoch_id}/skills`
 
 **Response** (200 OK):
-
 ```json
-{
-  "skills": [
-    {
-      "skill_id": "skill_gradient_descent_v3",
-      "name": "gradient_descent",
-      "version": "3.0.0",
-      "description": "Vectorized gradient descent with adaptive LR",
-      "status": "registered",
-      "compatible_roles": ["optimizer", "synthesizer"],
-      "tags": ["optimization", "core", "vectorized"],
-      "test_coverage": 0.94,
-      "performance": {"avg_latency_ms": 12, "memory_mb": 45},
-      "created_at": "2024-01-15T10:30:00Z"
-    }
-  ],
-  "total": 42
-}
+[
+  {
+    "skill_id": "skill_gradient_descent_v3",
+    "name": "gradient_descent",
+    "description": "Vectorized gradient descent with adaptive LR",
+    "version": 1,
+    "author_agent_id": "opt_042",
+    "invocation_count": 42,
+    "success_rate": 0.95,
+    "created_at": "2024-01-15T10:30:00Z"
+  }
+]
 ```
+
 ### Get Skill Details
 
-**GET** `/skills/{skill_id}`
+**GET** `/epochs/{epoch_id}/skills/{skill_id}`
 
 **Response** (200 OK):
-
 ```json
 {
   "skill_id": "skill_gradient_descent_v3",
   "name": "gradient_descent",
-  "version": "3.0.0",
-  "description": "Vectorized gradient descent with adaptive LR and momentum",
-  "author": "skill_compiler",
-  "status": "registered",
-  "code": "class GradientDescentV3(Skill): ...",
-  "manifest": {
-    "dependencies": ["numpy>=1.24", "torch>=2.0"],
-    "compatible_with": ["optimizer_role", "synthesizer_role"],
-    "tags": ["optimization", "core", "vectorized"]
-  },
-  "test_results": {"passed": 15, "failed": 0, "coverage": 0.94},
-  "performance": {"avg_latency_ms": 12, "memory_mb": 45},
-  "versions": [
-    {"version": "3.0.0", "status": "registered", "created_at": "2024-01-15T10:30:00Z"},
-    {"version": "2.5.0", "status": "deprecated", "created_at": "2024-01-10T10:30:00Z"}
-  ],
-  "dependencies": ["skill_base_optimizer_v1", "skill_vectorization_v1"],
-  "dependents": ["skill_adaptive_lr_v1", "skill_optimizer_ensemble_v1"]
+  "description": "Vectorized gradient descent with adaptive LR",
+  "version": 1,
+  "source_code": "def execute(input_data, context):\n    ...",
+  "entry_point": "execute",
+  "signature": "execute(input_data: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]",
+  "author_agent_id": "opt_042",
+  "parent_skill_ids": [],
+  "compilation_tick": 10,
+  "compilation_epoch": "ep_abc123",
+  "test_cases": [{"input": {"lr": 0.01}, "expected": {"loss_delta": -0.01}}],
+  "passed_tests": 1,
+  "failed_tests": 0,
+  "invocation_count": 42,
+  "success_rate": 0.95,
+  "avg_latency_ms": 12.5,
+  "is_sandboxed": true,
+  "allowed_imports": ["math", "random"],
+  "max_execution_time_ms": 5000,
+  "created_at": "2024-01-15T10:30:00Z",
+  "updated_at": "2024-01-15T10:30:00Z"
 }
 ```
 
-### Run Skill Tests
 
-**POST** `/skills/{skill_id}/test`
 
+### Seed Graph
+
+**POST** `/epochs/{epoch_id}/graph/seed`
+
+**Request Body:**
 ```json
 {
-  "test_suite": "full"
-}
-```
-
-**Response** (200 OK):
-
-```json
-{
-  "skill_id": "skill_gradient_descent_v3",
-  "results": {
-    "passed": 15,
-    "failed": 0,
-    "skipped": 0,
-    "coverage": 0.94,
-    "duration_ms": 1250
-  },
-  "tests": [
-    {"name": "test_vectorized_update", "passed": true, "duration_ms": 45},
-    {"name": "test_adaptive_lr", "passed": true, "duration_ms": 67}
+  "entities": [
+    {
+      "type": "skill",
+      "label": "gradient_descent",
+      "properties": {"version": "1", "tags": ["optimization"]}
+    }
   ]
 }
 ```
 
-### Rollback Skill
-
-**POST** `/skills/{skill_id}/rollback`
-
+**Response** (200 OK):
 ```json
 {
-  "target_version": "2.5.0"
+  "status": "seeded",
+  "nodes_added": 1
 }
 ```
 
-### Deprecate Skill
+### Query Graph
 
-**DELETE** `/skills/{skill_id}`
+**POST** `/epochs/{epoch_id}/graph/query`
 
+**Request Body:**
 ```json
 {
-  "reason": "Superseded by v3"
-}
-```
-
-## GraphRAG
-
-### Hybrid Search
-
-**POST** `/graphrag/search`
-
-```json
-{
-  "query": "optimization strategies for neural networks",
-  "vector_weight": 0.6,
-  "graph_weight": 0.4,
-  "max_hops": 2,
-  "top_k": 15,
-  "filters": {
-    "epoch_id": "ep_123",
-    "type": "skill"
-  }
+  "query_vector": [0.1, 0.2, 0.3, ...],
+  "node_types": ["skill", "concept"],
+  "top_k": 10,
+  "center_node": "gradient_descent",
+  "radius": 2
 }
 ```
 
 **Response** (200 OK):
-
 ```json
 {
   "results": [
     {
-      "entity_id": "ent_abc123",
-      "type": "skill",
-      "name": "gradient_descent_v3",
-      "description": "Vectorized gradient descent with adaptive LR",
-      "score": 0.92,
-      "source": "hybrid",
-      "metadata": {"epoch_id": "ep_123", "version": "3.0.0"}
-    }
-  ],
-  "query_time_ms": 45
-}
-```
-
-### Vector Search
-
-**POST** `/graphrag/vector-search`
-
-```json
-{
-  "query": "catastrophic forgetting prevention",
-  "top_k": 10,
-  "filters": {"type": "concept"}
-}
-```
-
-### Graph Traversal
-
-**POST** `/graphrag/graph-traverse`
-
-```json
-{
-  "start_entity": "gradient_descent",
-  "max_hops": 3,
-  "relation_types": ["derives", "optimizes", "combines_with"]
-}
-```
-
-### Multi-Hop Reasoning
-
-**POST** `/graphrag/multi-hop`
-
-```json
-{
-  "question": "What skills combine well with gradient_descent for sparse rewards?",
-  "max_hops": 3,
-  "synthesis_model": "gpt-4-turbo"
-}
-```
-
-### Ingest Documents
-
-**POST** `/graphrag/ingest`
-
-```json
-{
-  "documents": [
-    {
-      "content": "New research on adaptive learning rates...",
-      "source": "arxiv:2024.00123",
-      "type": "research_paper",
-      "metadata": {"tags": ["optimization", "adaptive_lr"]}
+      "node": {
+        "node_id": "ent_abc123",
+        "node_type": "skill",
+        "label": "gradient_descent",
+        "properties": {"version": "1", "tags": ["optimization"]}
+      },
+      "score": 0.92
     }
   ]
 }
 ```
 
-### Get Entity
+### Get Graph Stats
 
-**GET** `/graphrag/entities/{entity_id}`
+**GET** `/epochs/{epoch_id}/graph/stats`
 
-### Get Entity Neighbors
-
-**GET** `/graphrag/entities/{entity_id}/neighbors`
-
-**Query Parameters:**
-- `relation_types` - Comma-separated relation types
-- `max_hops` - Maximum hops (default: 1)
-
-## Configuration
-
-### Get Safeguard Config
-
-**GET** `/safeguards/config`
-
-### Update Safeguard Config
-
-**PUT** `/safeguards/config`
-
+**Response** (200 OK):
 ```json
 {
-  "circuit_breaker_threshold": 5,
-  "divergence_threshold": 2.0,
-  "rollback_on_critical": true,
-  "divergence": {
-    "enabled": true,
-    "check_interval_ticks": 1,
-    "baseline_window_ticks": 50,
-    "weights": {
-      "loss_velocity": 0.35,
-      "diversity": 0.20,
-      "consensus": 0.20,
-      "skill_success": 0.15,
-      "throughput": 0.10
-    },
-    "thresholds": {
-      "info": 0.3,
-      "warning": 0.5,
-      "critical": 0.7,
-      "emergency": 0.9
-    }
-  }
+  "nodes": 150,
+  "edges": 342,
+  "node_types": {"skill": 25, "concept": 45, "function": 30},
+  "last_updated": "2024-01-15T10:45:00Z"
 }
 ```
 
@@ -776,14 +502,7 @@ All errors follow this format:
 ```json
 {
   "status": "healthy",
-  "version": "0.1.0",
-  "uptime_seconds": 3600,
-  "components": {
-    "redis": "connected",
-    "vector_db": "connected",
-    "graph_db": "connected",
-    "llm_provider": "connected"
-  }
+  "service": "fnse"
 }
 ```
 

@@ -251,11 +251,7 @@ safeguards:
 | `GET` | `/epochs/{id}/safeguards/status` | Current safeguard status |
 | `GET` | `/epochs/{id}/safeguards/metrics` | Divergence metrics history |
 | `GET` | `/epochs/{id}/safeguards/alerts` | Alert history |
-| `POST` | `/epochs/{id}/safeguards/pause` | Manually pause epoch |
-| `POST` | `/epochs/{id}/safeguards/rollback` | Trigger manual rollback |
-| `POST` | `/epochs/{id}/safeguards/resume` | Resume paused epoch |
-| `GET` | `/safeguards/config` | Get safeguard configuration |
-| `PUT` | `/safeguards/config` | Update safeguard configuration |
+| `POST` | `/epochs/{id}/safeguards/alerts/{alert_id}/acknowledge` | Acknowledge alert |
 
 ## Next Steps
 

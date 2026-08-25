@@ -12,7 +12,6 @@ FNSE (Fractal Neural Simulation Engine) is a production-grade, self-evolving mul
 graph TB
     subgraph API_Layer
         REST[REST_API]
-        WS[WebSocket]
     end
     
     subgraph Orchestration
@@ -39,7 +38,6 @@ graph TB
     end
     
     REST --> MacroSwarm
-    WS --> MacroSwarm
     MacroSwarm --> Scheduler
     Scheduler --> MacroSwarm
     MacroSwarm --> GraphRAG
@@ -78,6 +76,6 @@ Computational circuit breakers, divergence monitoring, automated state rollback,
 [→ Safeguards Deep Dive](/docs/architecture/safeguards/)
 
 ### 5. REST API — Full-Featured Server
-FastAPI server with epoch lifecycle management, real-time WebSocket streaming, GraphRAG query interface, and skill compilation endpoints.
+FastAPI server with epoch lifecycle management, GraphRAG query interface, and skill compilation endpoints.
 
 [→ API Reference](/docs/api-reference/)

@@ -141,11 +141,26 @@ macro_swarm:
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
+| `GET` | `/health` | Health check |
+| `POST` | `/epochs` | Create new epoch |
+| `GET` | `/epochs` | List all epochs |
+| `GET` | `/epochs/{id}` | Get epoch status |
+| `POST` | `/epochs/{id}/tick` | Advance epoch by one tick |
+| `POST` | `/epochs/{id}/run` | Run epoch to completion |
+| `POST` | `/epochs/{id}/stop` | Stop running epoch |
+| `GET` | `/epochs/{id}/result` | Get epoch result |
+| `DELETE` | `/epochs/{id}` | Delete epoch |
 | `GET` | `/epochs/{id}/agents` | List all agents in epoch |
 | `GET` | `/epochs/{id}/agents/{agent_id}` | Get agent state |
-| `POST` | `/epochs/{id}/agents/scale` | Scale agent count |
-| `GET` | `/epochs/{id}/messages` | Get message history |
-| `WS` | `/epochs/{id}/stream` | Real-time agent updates |
+| `POST` | `/epochs/{id}/skills` | Compile new skill |
+| `GET` | `/epochs/{id}/skills` | List skills for epoch |
+| `GET` | `/epochs/{id}/skills/{skill_id}` | Get skill details |
+| `POST` | `/epochs/{id}/graph/seed` | Seed graph entities |
+| `POST` | `/epochs/{id}/graph/query` | Query graph |
+| `GET` | `/epochs/{id}/graph/stats` | Get graph stats |
+| `GET` | `/epochs/{id}/safeguards/status` | Safeguard status |
+| `GET` | `/epochs/{id}/alerts` | Alert history |
+| `POST` | `/epochs/{id}/alerts/{alert_id}/acknowledge` | Acknowledge alert |
 
 ## Next Steps
 
