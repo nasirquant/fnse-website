@@ -141,18 +141,90 @@ Start a new simulation epoch.
 
 **Response** (200 OK):
 ```json
-["ep_abc123", "ep_def456", "ep_ghi789"]
+[
+  {
+    "epoch_id": "ep_abc123",
+    "running": true,
+    "tick_number": 42,
+    "global_loss": 0.847
+  },
+  {
+    "epoch_id": "ep_def456",
+    "running": false,
+    "tick_number": 100,
+    "global_loss": 0.008
+  }
+]
 ```
 
-### Health Check
+### Advance Epoch by One Tick
 
-**GET** `/health`
+**POST** `/epochs/{epoch_id}/tick`
 
 **Response** (200 OK):
 ```json
 {
-  "status": "healthy",
-  "service": "fnse"
+  "epoch_id": "ep_abc123",
+  "tick_number": 43,
+  "global_loss": 0.823,
+  "convergence_rate": -0.0018,
+  "agent_count": 10,
+  "alerts": [],
+  "timestamp": "2024-01-15T10:31:00Z"
+}
+```
+
+### Run Epoch to Completion
+
+**POST** `/epochs/{epoch_id}/run`
+
+Runs the epoch until convergence or max_ticks reached.
+
+**Response** (200 OK):
+```json
+{
+  "epoch_id": "ep_abc123",
+  "status": "completed",
+  "final_tick": 87,
+  "converged": true,
+  "final_loss": 0.0042
+}
+```
+
+### Stop Running Epoch
+
+**POST** `/epochs/{epoch_id}/stop`
+
+Stops a running epoch gracefully.
+
+**Response** (200 OK):
+```json
+{
+  "epoch_id": "ep_abc123",
+  "status": "stopped",
+  "final_tick": 43,
+  "final_loss": 0.823
+}
+```
+
+### Get Epoch Result
+
+**GET** `/epochs/{epoch_id}/result`
+
+**Response** (200 OK):
+```json
+{
+  "epoch_id": "ep_abc123",
+  "converged": true,
+  "final_global_loss": 0.0042,
+  "total_ticks": 87,
+  "loss_trajectory": [1.2, 0.95, 0.73, 0.51, 0.32, 0.18, 0.08, 0.03, 0.01, 0.0042],
+  "total_duration_seconds": 45.3,
+  "total_tokens": 125000,
+  "top_performers": ["optimizer_042", "synthesizer_015"],
+  "skills_compiled": 5,
+  "circuit_breaks": 0,
+  "rollbacks_performed": 0
 }
 ```
 
@@ -400,6 +472,8 @@ Compile a new skill from source code.
 
 **POST** `/epochs/{epoch_id}/graph/seed`
 
+Seed initial entities into the knowledge graph.
+
 **Request Body:**
 ```json
 {
@@ -424,6 +498,8 @@ Compile a new skill from source code.
 ### Query Graph
 
 **POST** `/epochs/{epoch_id}/graph/query`
+
+Query the knowledge graph using vector similarity or subgraph extraction.
 
 **Request Body:**
 ```json

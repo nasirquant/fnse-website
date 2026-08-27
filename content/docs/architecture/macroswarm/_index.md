@@ -94,23 +94,7 @@ For production deployments requiring adversarial resistance.
 
 ## Dynamic Scaling
 
-Agents can be added/removed mid-epoch:
-
-```python
-# Scale up
-await macro_swarm.scale_agents(
-    role="explorer",
-    delta=+5,
-    reason="Exploration plateau detected"
-)
-
-# Scale down
-await macro_swarm.scale_agents(
-    role="optimizer",
-    delta=-2,
-    reason="Convergence approaching"
-)
-```
+Agents can be added/removed mid-epoch through the MacroSwarm interface (not directly via REST API).
 
 ## Configuration
 

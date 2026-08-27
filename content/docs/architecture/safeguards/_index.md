@@ -249,9 +249,8 @@ safeguards:
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `GET` | `/epochs/{id}/safeguards/status` | Current safeguard status |
-| `GET` | `/epochs/{id}/safeguards/metrics` | Divergence metrics history |
-| `GET` | `/epochs/{id}/safeguards/alerts` | Alert history |
-| `POST` | `/epochs/{id}/safeguards/alerts/{alert_id}/acknowledge` | Acknowledge alert |
+| `GET` | `/epochs/{id}/alerts` | Alert history |
+| `POST` | `/epochs/{id}/alerts/{alert_id}/acknowledge` | Acknowledge alert |
 
 ## Next Steps
 

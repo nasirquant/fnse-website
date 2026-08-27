@@ -1,0 +1,13 @@
+docs: remove WebSocket references; update footer branding to FNSE Engine  
+  
+- Remove all WebSocket references from documentation to match REST-only API  
+  - quickstart: removed WebSocket streaming section, kept REST polling  
+  - api-reference: removed WebSocket from description, deleted Epoch WebSocket Stream endpoint  
+  - architecture: removed WebSocket from mermaid diagram and description  
+  - fractal-neural-engine/README.md: removed WebSocket from diagram, feature table, monitoring  
+  
+- Update footer copyright and branding in hugo.toml  
+  - Added enable=true, updated copyright to 2026 FNSE (Fractal Neural Simulation Engine)  
+  
+- Override footer template in layouts/partials/footer.html  
+  - Replaced 'Powered by Hextra' with 'Powered by FNSE Engine - fnse.dev' 

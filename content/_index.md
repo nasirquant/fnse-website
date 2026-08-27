@@ -52,7 +52,7 @@ A production-grade, self-evolving multi-agent simulation framework with recursiv
 {{< card
   link="/docs/api-reference/"
   title="🚀 REST API"
-  subtitle="Full-featured FastAPI server with epoch lifecycle management, real-time WebSocket streaming, GraphRAG query interface, and skill compilation endpoints."
+  subtitle="Full-featured FastAPI server with epoch lifecycle management, tick polling, GraphRAG query interface, and skill compilation endpoints."
   icon="tabler:rocket"
 >}}
 {{< /cards >}}
@@ -126,7 +126,7 @@ FNSE follows a layered architecture:
 | Layer | Components |
 |-------|------------|
 | **Client** | CLI, REST API, Python SDK |
-| **Gateway** | FastAPI, WebSocket, Auth |
+| **Gateway** | FastAPI, Auth |
 | **Core** | MacroSwarm, Tick Scheduler, State Manager |
 | **Runtime** | 5 Agent Roles (Explorer, Optimizer, Critic, Synthesizer, Coordinator) |
 | **Intelligence** | GraphRAG, SkillCompiler, LiteLLM Router |
@@ -143,7 +143,6 @@ See [Architecture Overview](/docs/architecture/) for detailed diagrams.
 |----------|--------|-------------|
 | `/epochs` | POST | Create new simulation epoch |
 | `/epochs/{id}` | GET | Get epoch status |
-| `/epochs/{id}/ticks` | GET | Stream tick events (WebSocket) |
 | `/epochs/{id}/agents` | GET | List all agents |
 | `/epochs/{id}/graph/query` | POST | Query GraphRAG |
 | `/skills/compile` | POST | Compile new skill |
