@@ -13,9 +13,9 @@ layout: "landing"
 A production-grade, self-evolving multi-agent simulation framework with recursive skill compilation, graph-based memory, and enterprise safeguards.
 {{< /hextra/hero-subtitle >}}
 
-{{< badge content="Version 1.0.0" color="blue" >}}
+{{< badge content="Version 1.0.2" color="blue" >}}
 {{< badge content="AGPL-3.0 License" color="orange" >}}
-{{< badge content="Python 3.11+" color="blue" >}}
+{{< badge content="Python 3.10+" color="blue" >}}
 {{< badge content="FastAPI 0.109+" color="green" >}}
 {{< badge content="Redis 7.0+" color="red" >}}
 {{< badge content="Docker Ready" color="blue" >}}
@@ -76,7 +76,7 @@ curl -X POST http://localhost:8000/epochs \
 ```
 
 {{< callout type="info" >}}
-**Requires:** Python 3.11+, Redis, OpenAI API key (or Anthropic). See [Environment Variables](/docs/quickstart/#environment-variables) for full configuration.
+**Requires:** Python 3.10+, Redis, OpenAI API key (or Anthropic). See [Environment Variables](/docs/quickstart/#environment-variables) for full configuration.
 {{< /callout >}}
 
 ---

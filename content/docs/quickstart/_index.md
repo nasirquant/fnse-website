@@ -6,7 +6,7 @@ weight: 1
 
 ## Prerequisites
 
-- **Python 3.11+**
+- **Python 3.10+**
 - **Redis 7.0+** (for state management and message passing)
 - **OpenAI API key** or **Anthropic API key** (for LLM-powered agents)
 
